@@ -76,7 +76,7 @@ class YJBTrader(WebTrader):
         login_response = self.s.post(self.config['login_api'], params=login_params)
         log.debug('login response: %s' % login_response.text)
 
-        if login_response.text.find('上次登陆') != -1:
+        if login_response.text.find(u'上次登陆') != -1:
             return True, None
         return False, login_response.text
 

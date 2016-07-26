@@ -42,10 +42,10 @@ class WebTrader(object):
         try:
             self.account_config = helpers.file2dict(path)
         except ValueError:
-            log.error('配置文件格式有误，请勿使用记事本编辑，推荐使用 notepad++ 或者 sublime text')
+            log.error(u'配置文件格式有误，请勿使用记事本编辑，推荐使用 notepad++ 或者 sublime text')
         for v in self.account_config:
             if type(v) is int:
-                log.warn('配置文件的值最好使用双引号包裹，使用字符串类型，否则可能导致不可知的问题')
+                log.warn(u'配置文件的值最好使用双引号包裹，使用字符串类型，否则可能导致不可知的问题')
 
     def prepare(self, need_data):
         """登录的统一接口
@@ -62,7 +62,7 @@ class WebTrader(object):
             if self.login():
                 break
         else:
-            raise NotLoginError('登录失败次数过多, 请检查密码是否正确 / 券商服务器是否处于维护中 / 网络连接是否正常')
+            raise NotLoginError(u'登录失败次数过多, 请检查密码是否正确 / 券商服务器是否处于维护中 / 网络连接是否正常')
         self.keepalive()
 
     def login(self):
@@ -136,7 +136,7 @@ class WebTrader(object):
         """获取当日委托列表"""
         # return self.do(self.config['current_deal'])
         # TODO 目前仅在 佣金宝子类 中实现
-        log.info('目前仅在 佣金宝/银河子类 中实现, 其余券商需要补充')
+        log.info(u'目前仅在 佣金宝/银河子类 中实现, 其余券商需要补充')
 
     @property
     def exchangebill(self):
@@ -156,7 +156,7 @@ class WebTrader(object):
         :return:
         """
         # TODO 目前仅在 华泰子类 中实现
-        log.info('目前仅在 华泰子类 中实现, 其余券商需要补充')
+        log.info(u'目前仅在 华泰子类 中实现, 其余券商需要补充')
 
     def ipo_enable_amount(self, stock_code):
         """
@@ -165,7 +165,7 @@ class WebTrader(object):
         :return:
         """
         # TODO 目前仅在 佣金宝 中实现
-        log.info('目前仅在 佣金宝子类 中实现, 其余券商需要补充')
+        log.info(u'目前仅在 佣金宝子类 中实现, 其余券商需要补充')
 
     def do(self, params):
         """发起对 api 的请求并过滤返回结果

@@ -23,13 +23,13 @@ def use(broker, debug=True, **kwargs):
     """
     if not debug:
         log.handlers = [logging.NullHandler()]
-    if broker.lower() in ['ht', 'HT', '华泰']:
+    if broker.lower() in ['ht', 'HT', u'华泰']:
         return HTTrader(**kwargs)
-    if broker.lower() in ['yjb', 'YJB', '佣金宝']:
+    if broker.lower() in ['yjb', 'YJB', u'佣金宝']:
         return YJBTrader()
-    if broker.lower() in ['yh', 'YH', '银河']:
+    if broker.lower() in ['yh', 'YH', u'银河']:
         return YHTrader()
-    if broker.lower() in ['xq', 'XQ', '雪球']:
+    if broker.lower() in ['xq', 'XQ', u'雪球']:
         return XueQiuTrader()
-    if broker.lower() in ['gf', 'GF', '广发']:
+    if broker.lower() in ['gf', 'GF', u'广发']:
         return GFTrader()
