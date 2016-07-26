@@ -4,6 +4,7 @@ from __future__ import division
 import json
 import os
 import random
+import tempfile
 import urllib
 
 import demjson
@@ -13,8 +14,7 @@ import six
 from . import helpers
 from .webtrader import NotLoginError
 from .webtrader import WebTrader
-
-log = helpers.get_logger(__file__)
+from .log import log
 
 
 class YJBTrader(WebTrader):
@@ -22,7 +22,6 @@ class YJBTrader(WebTrader):
 
     def __init__(self):
         super(YJBTrader, self).__init__()
-        self.cookie = None
         self.account_config = None
         self.s = requests.session()
         self.s.mount('https://', helpers.Ssl3HttpAdapter())
@@ -49,7 +48,7 @@ class YJBTrader(WebTrader):
         # 获取验证码
         verify_code_response = self.s.get(self.config['verify_code_api'], params=dict(randomStamp=random.random()))
         # 保存验证码
-        image_path = os.path.join(os.getcwd(), 'vcode')
+        image_path = os.path.join(tempfile.gettempdir(), 'vcode')
         with open(image_path, 'wb') as f:
             f.write(verify_code_response.content)
 
@@ -80,15 +79,6 @@ class YJBTrader(WebTrader):
         if login_response.text.find('上次登陆') != -1:
             return True, None
         return False, login_response.text
-
-    @property
-    def token(self):
-        return self.cookie['JSESSIONID']
-
-    @token.setter
-    def token(self, token):
-        self.cookie = dict(JSESSIONID=token)
-        self.keepalive()
 
     def cancel_entrust(self, entrust_no, stock_code):
         """撤单
@@ -123,6 +113,13 @@ class YJBTrader(WebTrader):
         'stock_name': '证券名称'}]
         """
         return self.do(self.config['current_deal'])
+
+    def ipo_enable_amount(self, stock_code):
+        params = dict(
+                self.config['ipo_enable_amount'],
+                stock_code=stock_code
+        )
+        return self.do(params)
 
     # TODO: 实现买入卖出的各种委托类型
     def buy(self, stock_code, price, amount=0, volume=0, entrust_prop=0):
@@ -202,7 +199,7 @@ class YJBTrader(WebTrader):
         return basic_params
 
     def request(self, params):
-        r = self.s.get(self.trade_prefix, params=params, cookies=self.cookie)
+        r = self.s.get(self.trade_prefix, params=params)
         return r.text
 
     def format_response_data(self, data):

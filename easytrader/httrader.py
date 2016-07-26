@@ -11,29 +11,14 @@ import threading
 import urllib
 import uuid
 from collections import OrderedDict
+import tempfile
 
 import requests
 import six
 
 from . import helpers
 from .webtrader import WebTrader, NotLoginError
-
-log = helpers.get_logger(__file__)
-
-# 移除心跳线程产生的日志
-debug_log = log.debug
-
-
-def remove_heart_log(*args, **kwargs):
-    if six.PY2:
-        if threading.current_thread().name == 'MainThread':
-            debug_log(*args, **kwargs)
-    else:
-        if threading.current_thread() == threading.main_thread():
-            debug_log(*args, **kwargs)
-
-
-log.debug = remove_heart_log
+from .log import log
 
 
 class HTTrader(WebTrader):
@@ -105,7 +90,7 @@ class HTTrader(WebTrader):
         # 获取验证码
         verify_code_response = self.s.get(self.config['verify_code_api'])
         # 保存验证码
-        image_path = os.path.join(os.getcwd(), 'vcode')
+        image_path = os.path.join(tempfile.gettempdir(), 'vcode')
         with open(image_path, 'wb') as f:
             f.write(verify_code_response.content)
 
@@ -165,13 +150,16 @@ class HTTrader(WebTrader):
         """
         for account_info in json_data['item']:
             if account_info['stock_account'].startswith('A'):
-                self.__sh_exchange_type = account_info['exchange_type']
+                # 沪 A  股东代码以 A 开头，同时需要是数字，沪 B 帐号以 C 开头
+                if account_info['exchange_type'].isdigit():
+                    self.__sh_exchange_type = account_info['exchange_type']
                 self.__sh_stock_account = account_info['stock_account']
-                log.debug('sh stock account %s' % self.__sh_stock_account)
-            elif account_info['stock_account'].isdigit():
+                log.debug('sh_A stock account %s' % self.__sh_stock_account)
+            # 深 A 股东代码以 0 开头，深 B 股东代码以 2 开头
+            elif account_info['stock_account'].startswith('0'):
                 self.__sz_exchange_type = account_info['exchange_type']
                 self.__sz_stock_account = account_info['stock_account']
-                log.debug('sz stock account %s' % self.__sz_stock_account)
+                log.debug('sz_A stock account %s' % self.__sz_stock_account)
 
         self.__fund_account = json_data['fund_account']
         self.__client_risklevel = json_data['branch_no']

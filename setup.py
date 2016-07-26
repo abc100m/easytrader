@@ -89,7 +89,6 @@ setup(
         install_requires=[
             'demjson',
             'requests',
-            'logbook',
             'anyjson',
             'six'
         ],
@@ -104,3 +103,4 @@ setup(
         packages=['easytrader', 'easytrader.config', 'easytrader.thirdlibrary'],
         package_data={'': ['*.jar', '*.json'], 'config': ['config/*.json'], 'thirdlibrary': ['thirdlibrary/*.jar']},
 )
+
